@@ -23,7 +23,7 @@ import React from 'react'
         >
           <path d="M96 0V47L48 94H0V47L48 0H96Z" />
         </svg>
-        Flowrift
+        Vastra Culture
       </a>
       {/* logo - end */}
       {/* nav - start */}
@@ -38,7 +38,7 @@ import React from 'react'
           href="#"
           className="inline-flex items-center gap-1 text-lg font-semibold text-indigo-500"
         >
-          Features
+          Product
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 text-gray-800"
