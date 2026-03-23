@@ -4,13 +4,12 @@ import { ShoppingCart, User } from 'lucide-react';
 import { Search } from 'lucide-react';
 import { UserRound } from 'lucide-react';
 import { Heart } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 const Navbar = () => {
   return (
     <div>
-      <div className='md:hidden'>
-            <a className='text-3xl ' href="#">&#8801;</a>
-          </div>
+      
         <div className=" bg-white lg:pb-12 ">
   <div className="mx-auto max-w-screen-2xl px-4 md:px-8"></div>
 
@@ -30,7 +29,7 @@ const Navbar = () => {
         {/* Search Icon */}
 
     
-        <div className=" w-full max-w-4xl  mx-auto px-24 py-8">
+        <div className="hidden md:block w-full max-w-4xl  mx-auto px-24 py-8">
       <div className="flex items-stretch h-10 w-full overflow-hidden rounded-full shadow-sm">
 
         {/* Input Container  (search button icon)*/}
@@ -52,7 +51,7 @@ const Navbar = () => {
     </div>
           
         <div className='flex  md:flex'>
-        <div className="flex-1 flex items-center justify-end space-x-6 md:space-x-10">
+        <div className="flex items-center justify-end space-x-6 md:space-x-10">
           
 
           {/* Nav Links */}
@@ -67,25 +66,27 @@ const Navbar = () => {
             <a href="/products" className="text-[11px] font-bold uppercase tracking-widest text-black hover:opacity-60 transition-opacity">
               contact
             </a>
-            <a href="/wishlist" className="text-[11px] font-bold uppercase tracking-widest text-black hover:opacity-60 transition-opacity">
+            <a href="/wishlist" className="hover:opacity-60 transition-opacity">
               <Heart />
             </a>
-            <a href="/addcart" className="text-[11px] font-bold uppercase tracking-widest text-black hover:opacity-60 transition-opacity">
+            <a href="/addcart" className="hover:opacity-60 transition-opacity">
               <ShoppingCart />
             </a>
-            
+
+             {/* Account */}
+
+          <Link href="/login" className="hover:opacity-60 transition-opacity">
+               <UserRound />
+          </Link>
             
           </nav>
-
-          {/* Account */}
-          <Link href="/login">
-            
-           
-               <UserRound />
-            
-          </Link>
           
         </div>
+        <div className='md:hidden'>
+        <a href="#">
+          <Menu />
+          </a>
+      </div>
         </div>
 
       </div>
@@ -96,4 +97,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Navbar   

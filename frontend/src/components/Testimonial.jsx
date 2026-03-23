@@ -6,12 +6,9 @@ const Testimonial = () => {
         <section className="bg-gray-300 py-20 px-6 lg:px-12">
   <div className="max-w-7xl mx-auto">
     <div className="text-center mb-16">
-      <h2 className="text-2xl md:text-4xl font-black text-black uppercase tracking-[0.2]">
-        Voices of the <span className="text-indigo-600">Culture</span>
+      <h2 className="text-xl md:text-2xl font-black text-black uppercase tracking-[0.2]">
+         what our community is saying 
       </h2>
-      <p className="mt-4 text-gray-500 font-medium uppercase tracking-widest text-xs">
-        What our community is saying
-      </p>
     </div>
 
     {/* Testimonials Grid */}
