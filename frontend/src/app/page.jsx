@@ -35,17 +35,9 @@ const Hero = () => {
           </p>
 
           {/* The Responsive Button - Left Aligned on Desktop */}
-          <button className="group relative inline-flex items-center justify-center px-4 py-2 text-base md:text-lg font-bold text-white transition-all duration-300 bg-gray-400 hover:bg-indigo-500 rounded-full shadow-2xl hover:scale-105 transform">
+          <button className="group relative inline-flex item-center justify-center px-4 py-2 text-base md:text-lg font-bold text-black transition-all duration-300 bg-white hover:bg-gray-400
+          rounded-full shadow-2xl hover:scale-105 transform">
             Explore Now
-            <svg
-              className="w-5 h-5 ml-3 -mr-1 transition-all duration-200 group-hover:translate-x-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
           </button>
         </div>
 

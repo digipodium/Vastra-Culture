@@ -1,4 +1,6 @@
+
 import link from 'next/link';
+import { Instagram, User } from 'lucide-react';
 import React from 'react'
 
 const footer = () => {
@@ -15,6 +17,8 @@ const footer = () => {
             <div className="flex space-x-5">
               <a href="#" className="text-gray-400 hover:text-indigo-600 transition-colors">
                 <instagram className="w-6 h-6" />
+                <Instagram />
+                
               </a>
               <a href="#" className="text-gray-400 hover:text-indigo-600 transition-colors">
                 <facebook className="w-6 h-6" />
@@ -52,8 +56,8 @@ const footer = () => {
 
           {/* 4. Contact Us Section */}
           <div>
-            <h3 className="text-black font-bold uppercase tracking-widest text-xs mb-6">Contact Us</h3>
-            <ul className="space-y-4 text-sm text-gray-600">
+            <h3 className="text-black font-bold uppercase tracking-widest text-xs mb-6 ml-6">Contact Us</h3>
+            <ul className="space-y-4  text-sm text-gray-600">
               <li className="flex items-center gap-2"><e-mail className="w-4 h-4" /> hello@vastra.com</li>
               <li className="flex items-center gap-2"><phone className="w-4 h-4" /> +91 XXXXXXXXXX </li>
               <li className="flex items-center gap-2"><address className="w-4 h-4" /> Lucknow, India</li>
@@ -64,7 +68,7 @@ const footer = () => {
           <div>
             <h3 className="text-black font-bold uppercase tracking-widest text-xs mb-6">About</h3>
             <ul className="space-y-4 text-sm text-gray-600">
-              <li><a href="#" className="hover:text-black transition-colors">Our Story</a></li>
+              <li><a href="/ourStory" className="hover:text-black transition-colors">Our Story</a></li>
               <li><a href="#" className="hover:text-black transition-colors">Careers</a></li>
               <li><a href="#" className="hover:text-black transition-colors">Privacy Policy</a></li>
             </ul>
