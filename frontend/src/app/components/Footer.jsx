@@ -32,7 +32,7 @@ const Footer = () => {
               >
                 <path d="M96 0V47L48 94H0V47L48 0H96Z" />
               </svg>
-              Flowrift
+              Vastra Culture
             </a>
           </div>
           {/* logo - end */}
