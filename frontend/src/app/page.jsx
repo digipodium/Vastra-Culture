@@ -31,7 +31,7 @@ const Hero = () => {
 
           {/* Description */}
           {/* <p className="max-w-xl text-sm md:text-lg text-gray-200 mb-10 leading-relaxed font-medium">
-            Experience the next generation of Gen-Z fashion. High-quality streetwear delivered with real-time updates.
+            Experience to the next generation of Gen-Z fashion. High-quality streetwear delivered with real-time updates.
           </p> */}
 
           {/* The Responsive Button - Left Aligned on Desktop */}
