@@ -1,112 +1,134 @@
+'use client';
+import axios from 'axios';
+import { useFormik } from 'formik';
 import React from 'react'
+import toast from 'react-hot-toast';
 
-const login = () => {
-  return (
-    <div>
+const Login = () => {
 
-        <div className="bg-white py-6 sm:py-8 lg:py-12">
-  <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
-    <h2 className="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-8 lg:text-3xl">
-      Login
-    </h2>
-    <form className="mx-auto max-w-lg rounded-lg border">
-      <div className="flex flex-col gap-4 p-4 md:p-8">
-        <div>
-          <label
-            htmlFor="email"
-            className="mb-2 inline-block text-sm text-gray-800 sm:text-base"
-          >
-            Email
-          </label>
-          <input
-            name="email"
-            className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="password"
-            className="mb-2 inline-block text-sm text-gray-800 sm:text-base"
-          >
-            Password
-          </label>
-          <input
-            name="password"
-            className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
-          />
-        </div>
-        <button className="block rounded-lg bg-gray-800 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-gray-300 transition duration-100 hover:bg-gray-700 focus-visible:ring active:bg-gray-600 md:text-base">
-          Log in
-        </button>
-        <div className="relative flex items-center justify-center">
-          <span className="absolute inset-x-0 h-px bg-gray-300" />
-          <span className="relative bg-white px-4 text-sm text-gray-400">
-            Log in with social
-          </span>
-        </div>
-        <button className="flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-blue-300 transition duration-100 hover:bg-blue-600 focus-visible:ring active:bg-blue-700 md:text-base">
-          <svg
-            className="h-5 w-5 shrink-0"
-            width={24}
-            height={24}
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 0C5.37273 0 0 5.37273 0 12C0 18.0164 4.43182 22.9838 10.2065 23.8516V15.1805H7.23764V12.0262H10.2065V9.92727C10.2065 6.45218 11.8996 4.92655 14.7878 4.92655C16.1711 4.92655 16.9025 5.02909 17.2489 5.076V7.82945H15.2787C14.0525 7.82945 13.6244 8.99182 13.6244 10.302V12.0262H17.2178L16.7302 15.1805H13.6244V23.8773C19.4815 23.0825 24 18.0747 24 12C24 5.37273 18.6273 0 12 0Z"
-              fill="white"
-            />
-          </svg>
-          Continue with Facebook
-        </button>
-        <button className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-8 py-3 text-center text-sm font-semibold text-gray-800 outline-none ring-gray-300 transition duration-100 hover:bg-gray-100 focus-visible:ring active:bg-gray-200 md:text-base">
-          <svg
-            className="h-5 w-5 shrink-0"
-            width={24}
-            height={24}
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M23.7449 12.27C23.7449 11.48 23.6749 10.73 23.5549 10H12.2549V14.51H18.7249C18.4349 15.99 17.5849 17.24 16.3249 18.09V21.09H20.1849C22.4449 19 23.7449 15.92 23.7449 12.27Z"
-              fill="#4285F4"
-            />
-            <path
-              d="M12.2549 24C15.4949 24 18.2049 22.92 20.1849 21.09L16.3249 18.09C15.2449 18.81 13.8749 19.25 12.2549 19.25C9.12492 19.25 6.47492 17.14 5.52492 14.29H1.54492V17.38C3.51492 21.3 7.56492 24 12.2549 24Z"
-              fill="#34A853"
-            />
-            <path
-              d="M5.52488 14.29C5.27488 13.57 5.14488 12.8 5.14488 12C5.14488 11.2 5.28488 10.43 5.52488 9.71V6.62H1.54488C0.724882 8.24 0.254883 10.06 0.254883 12C0.254883 13.94 0.724882 15.76 1.54488 17.38L5.52488 14.29Z"
-              fill="#FBBC05"
-            />
-            <path
-              d="M12.2549 4.75C14.0249 4.75 15.6049 5.36 16.8549 6.55L20.2749 3.13C18.2049 1.19 15.4949 0 12.2549 0C7.56492 0 3.51492 2.7 1.54492 6.62L5.52492 9.71C6.47492 6.86 9.12492 4.75 12.2549 4.75Z"
-              fill="#EA4335"
-            />
-          </svg>
-          Continue with Google
-        </button>
-      </div>
-      <div className="flex items-center justify-center bg-gray-100 p-4">
-        <p className="text-center text-sm text-gray-500">
-          Don't have an account?{" "}
-          <a
-            href="#"
-            className="text-indigo-500 transition duration-100 hover:text-indigo-600 active:text-indigo-700"
-          >
-            Register
-          </a>
-        </p>
-      </div>
-    </form>
-  </div>
-</div>
+    const loginForm = useFormik({
+        initialValues: {
+            email: '',
+            password: ''
+        },
+        onSubmit: (values) => {
+          console.log(values);
 
-        
-    </div>
-  )
+          axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/authenticate`, values)
+              .then((response) => {
+                  toast.success('Login successfull')
+                  console.log(response.data);
+                  const { token } = response.data;
+                  localStorage.setItem('token', token);
+                  
+              }).catch((err) => {
+                console.log(err);
+                if (err.response.status === 403){
+                toast.error(err?.response?.data?.message);
+                } else {
+                  toast.error('Some Error Occured');
+                }
+                
+              });
+
+        }
+    });
+
+
+    return (
+        <div className='bg-gray-100 min-h-screen'>
+            <div className="max-w-lg mx-auto bg-white border border-gray-200 rounded-xl shadow-2xs">
+                {/* Sign In */}
+                <div className="p-4 sm:p-7">
+                    <div className="text-center">
+                        <h3 id="hs-modal-signin-label" className="block text-2xl font-bold text-gray-800">Sign in</h3>
+                        <p className="mt-2 text-sm text-gray-600">
+                            Don't have an account yet?
+                            <a className="text-blue-600 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium" href="#">
+                                Sign up here
+                            </a>
+                        </p>
+                    </div>
+
+                    <div className="mt-5">
+                        <a className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-white border border-gray-200 text-gray-800 shadow-2xs hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-50" href="#">
+                            <svg className="w-4 h-auto" width="46" height="47" viewBox="0 0 46 47" fill="none">
+                                <path d="M46 24.0287C46 22.09 45.8533 20.68 45.5013 19.2112H23.4694V27.9356H36.4069C36.1429 30.1094 34.7347 33.37 31.5957 35.5731L31.5663 35.8669L38.5191 41.2719L38.9885 41.3306C43.4477 37.2181 46 31.1669 46 24.0287Z" fill="#4285F4" />
+                                <path d="M23.4694 47C29.8061 47 35.1161 44.9144 39.0179 41.3012L31.625 35.5437C29.6301 36.9244 26.9898 37.8937 23.4987 37.8937C17.2793 37.8937 12.0281 33.7812 10.1505 28.1412L9.88649 28.1706L2.61097 33.7812L2.52296 34.0456C6.36608 41.7125 14.287 47 23.4694 47Z" fill="#34A853" />
+                                <path d="M10.1212 28.1413C9.62245 26.6725 9.32908 25.1156 9.32908 23.5C9.32908 21.8844 9.62245 20.3275 10.0918 18.8588V18.5356L2.75765 12.8369L2.52296 12.9544C0.909439 16.1269 0 19.7106 0 23.5C0 27.2894 0.909439 30.8731 2.49362 34.0456L10.1212 28.1413Z" fill="#FBBC05" />
+                                <path d="M23.4694 9.07688C27.8699 9.07688 30.8622 10.9863 32.5344 12.5725L39.1645 6.11C35.0867 2.32063 29.8061 0 23.4694 0C14.287 0 6.36607 5.2875 2.49362 12.9544L10.0918 18.8588C11.9987 13.1894 17.25 9.07688 23.4694 9.07688Z" fill="#EB4335" />
+                            </svg>
+                            Sign in with Google
+                        </a>
+
+                        <div className="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6">Or</div>
+
+                        {/* Form */}
+                        <form onSubmit={loginForm.handleSubmit}>
+                            <div className="grid gap-y-4">
+                                {/* Form Group */}
+                                <div>
+                                    <label htmlFor="email" className="block text-sm mb-2 text-gray-800">Email address</label>
+                                    <div className="relative">
+                                        <input type="email"
+                                            id='email'
+                                            onChange={loginForm.handleChange}
+                                            value={loginForm.values.email}
+                                            className="py-2.5 sm:py-3 px-4 block w-full bg-white border-gray-200 rounded-lg sm:text-sm text-gray-800 placeholder:text-gray-500 focus:border-blue-700 focus:ring-blue-700 disabled:opacity-50 disabled:pointer-events-none" required aria-describedby="email-error" />
+                                        <div className="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
+                                            <svg className="size-5 text-red-500" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p className="hidden text-xs text-red-600 mt-2" id="email-error">Please include a valid email address so we can get back to you</p>
+                                </div>
+                                {/* End Form Group */}
+
+                                {/* Form Group */}
+                                <div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <label htmlFor="password" className="block text-sm mb-2 text-gray-800">Password</label>
+                                    </div>
+                                    <div className="relative">
+                                        <input type="password"
+                                            id='password'
+                                            onChange={loginForm.handleChange}
+                                            value={loginForm.values.password}
+                                            className="py-2.5 sm:py-3 px-4 block w-full bg-white border-gray-200 rounded-lg sm:text-sm text-gray-800 placeholder:text-gray-500 focus:border-blue-700 focus:ring-blue-700 disabled:opacity-50 disabled:pointer-events-none" required aria-describedby="password-error" />
+                                        <div className="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
+                                            <svg className="size-5 text-red-500" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p className="hidden text-xs text-red-600 mt-2" id="password-error">8+ characters required</p>
+                                </div>
+                                {/* End Form Group */}
+
+                                {/* Checkbox */}
+                                <div className="flex items-center">
+                                    <div className="flex">
+                                        <input id="checkbox" name="checkbox" type="checkbox" className="shrink-0 size-4 bg-transparent border-gray-300 rounded-sm shadow-2xs text-blue-600 focus:ring-0 focus:ring-offset-0 checked:bg-blue-600 checked:border-blue-600 disabled:opacity-50 disabled:pointer-events-none" />
+                                    </div>
+                                    <div className="ms-3">
+                                        <label htmlFor="checkbox" className="text-sm text-gray-800">
+                                            Remember me
+                                        </label>
+                                    </div>
+                                </div>
+                                {/* End Checkbox */}
+
+                                <button type="submit" className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-blue-600 border border-transparent text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">Sign in</button>
+                            </div>
+                        </form>
+                        {/* End Form */}
+                    </div>
+                </div>
+                {/* End Sign In */}
+            </div>
+        </div>
+    )
 }
 
-export default login;
+export default Login;

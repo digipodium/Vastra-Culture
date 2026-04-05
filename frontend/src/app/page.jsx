@@ -7,43 +7,33 @@ import React from 'react';
 const Hero = () => {
   return (
     <>
-      <section className="relative min-h-[80vh] lg:h-screen w-full flex items-center overflow-hidden">
-        {/* Background Image Container */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="hero_section_freepik.jpg"
-            alt="Vastra Culture Hero"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Dark Overlay - Adjusted opacity to make left-aligned text pop */}
-          <div className="absolute inset-0 bg-black/20"></div>
-        </div>
+      <section className="relative w-full md:h-screen overflow-hidden flex items-center justify-center">
+  {/* 1. The Background Image */}
+  <img 
+    src="hero_section_car.png" 
+    alt="hero section" 
+    className="absolute h-full object-cover"
+  />
 
-        {/* Content Container - Changed to items-start for left alignment */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 flex flex-col items-center lg:items-start text-center lg:text-left">
+  {/* 2. The Dark Overlay (Optional: Makes text easier to read) */}
+  <div className="absolute inset-0 bg-black/30"></div>
 
-          {/* Headline */}
-          <div className="max-w-3xl">
-            <h1 className="text-[10px] md:text-3xl font-bold uppercase tracking-[0.2em] text-black mb-2 py-6">
-              Luxury Hits Different
-            </h1>
-          </div>
+  {/* 3. The Centered Content */}
+  <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
+    
+    {/* Heading */}
+    <h1 className="text-[14px] md:text-2xl lg:text-4xl font-bold uppercase tracking-[0.2em] -mr-[0.2em] text-white mb-6 drop-shadow-2xl pt-40">
+      Luxury Hits Different
+    </h1>
 
-          {/* Description */}
-          {/* <p className="max-w-xl text-sm md:text-lg text-gray-200 mb-10 leading-relaxed font-medium">
-            Experience to the next generation of Gen-Z fashion. High-quality streetwear delivered with real-time updates.
-          </p> */}
-
-          {/* The Responsive Button - Left Aligned on Desktop */}
-          <button className="group relative inline-flex item-center justify-center px-4 py-2  text-base md:text-lg font-bold text-black transition-all duration-300 bg-white hover:bg-gray-400
-          rounded-xl shadow-2xl hover:scale-105 transform">
-            Explore Now
-          </button>
-        </div>
-
-        {/* Bottom Gradient Fade - Blends into your white background sections */}
-        <div className="absolute bottom-0 w-full h-32 md:h-48 bg-gradient-to-t from-white via-white/20 to-transparent"></div>
-      </section>
+    {/* The Button */}
+    <div className='pt-10'>
+    <button className="flex items-center justify-center px-8 py-3  text-base md:text-sm font-bold text-black transition-all duration-300 bg-white hover:bg-gray-200 rounded-xl shadow-2xl hover:scale-105 transform ">
+      Explore Now
+    </button>
+    </div>
+  </div>
+</section>
 
       <ProductSection />
       <Discount/>
