@@ -15,10 +15,10 @@ const Navbar = () => {
 
 
         <header className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-100 px-6 lg:px-12">
-          <div className="max-w-[1440px] mx-auto flex items-center justify-between h-20">
+          <div className="max-w-360 mx-auto flex items-center justify-between h-20">
 
             {/* LEFT SIDE: Project Name */}
-            <div className="flex-shrink-0 ">
+            <div className="shrink-0 ">
               <h1 className="text-xl md:text-2xl font-black tracking-tighter pr-20 text-right text-black uppercase ">
                 Vastra <span className="text-indigo-600">Culture</span>
               </h1>
@@ -33,7 +33,7 @@ const Navbar = () => {
               <div className="border border-gray-600 flex items-stretch h-10 w-full overflow-hidden rounded-full shadow-sm">
 
                 {/* Input Container  (search button icon)*/}
-                <div className="relative flex-grow flex items-center px-4 group">
+                <div className="relative grow flex items-center px-4 group">
 
                   <input type="text"
                     placeholder="Search products"
@@ -60,10 +60,10 @@ const Navbar = () => {
                   <a href="/" className="flex items-center text-black text-[11px] font-bold uppercase hover:text-gray-500 transition-colors space-x-2">
                     Home
                   </a>
-                  <a href="/" className="flex items-center text-black text-[11px] font-bold uppercase hover:text-gray-500 transition-colors space-x-2">
+                  <a href="/products" className="flex items-center text-black text-[11px] font-bold uppercase hover:text-gray-500 transition-colors space-x-2">
                     products
                   </a>
-                  <a href="/products" className="text-[11px] font-bold uppercase tracking-widest text-black hover:opacity-60 transition-opacity">
+                  <a href="/contact" className="text-[11px] font-bold uppercase tracking-widest text-black hover:opacity-60 transition-opacity">
                     contact
                   </a>
                   <a href="/wishlist" className="hover:opacity-60 transition-opacity">

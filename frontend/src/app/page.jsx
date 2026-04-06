@@ -1,4 +1,4 @@
-import Collab from '@/components/Collab';
+import Collab from '@/components/collab';
 import Discount from '@/components/Discount';
 import ProductSection from '@/components/Product';
 import Testimonial from '@/components/Testimonial';
@@ -6,7 +6,7 @@ import React from 'react';
 
 const Hero = () => {
   return (
-    <>
+    <div>
       <section className="relative w-full md:h-screen overflow-hidden flex items-center justify-center">
   {/* 1. The Background Image */}
   <img 
@@ -320,7 +320,7 @@ const Hero = () => {
       {/* Testimonial */}
 
       <div className="bg-white py-6 sm:py-8 lg:py-12">
-        <div className="mx-auto max-w-screen-xl px-4 md:px-8">
+        <div className="mx-auto max-w-7xl px-4 md:px-8">
           <h2 className="mb-8 text-center text-2xl font-bold text-gray-800 md:mb-12 lg:text-3xl">
             Our Collaboration
           </h2>
@@ -370,3 +370,4 @@ const Hero = () => {
     </>
   );
 }
+export default Hero;
