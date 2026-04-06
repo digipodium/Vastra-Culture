@@ -33,7 +33,7 @@ const ProductSection = () => {
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
             <div key={item} className="group flex flex-col h-full">
               {/* Image Container */}
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-6">
+              <div className="relative aspect-3/4 rounded-2xl overflow-hidden bg-gray-100 mb-6">
                 <img
                   src={'product_cart1.avif'} // Placeholder
                   alt="Vastra Product"
@@ -46,7 +46,7 @@ const ProductSection = () => {
               </div>
 
               {/* Product Details */}
-              <div className="flex flex-col flex-grow text-left">
+              <div className="flex flex-col grow text-left">
                 <div className="flex justify-between items-baseline mb-1">
                   <h3 className="text-sm  text-black  flex flex-col items-center justify-center px-1 uppercase tracking-tight group-hover:text-indigo-500 transition-colors">
                     Sneaker {item}
