@@ -1,7 +1,7 @@
 const express = require('express');
-const UserRouter = require('./router/userRouter');
+const UserRouter = require('./routes/userRoutes');
 const cors = require('cors');
-const userAuth = require('./middlewares/auth');
+const userAuth = require('./middleware/authMiddleware');
 
 const app = express();
 const port = 5000;
