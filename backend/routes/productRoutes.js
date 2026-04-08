@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const Model = require('../models/Productmodel');
+const Model = require('../models/Product');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -15,6 +15,13 @@ router.post('/add', (req, res) => {
 /// getall
 router.get('/getall', (req, res) => {
     Model.find()
+    .then(result => res.status(200).json(result))
+    .catch(err => res.status(500).json(err));
+});
+
+// get published products (for public website)
+router.get('/getpublished', (req, res) => {
+    Model.find({ status: 'approved', isPublished: true })
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json(err));
 });

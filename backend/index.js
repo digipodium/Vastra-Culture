@@ -1,5 +1,7 @@
 const express = require('express');
 const UserRouter = require('./routes/userRoutes');
+const ProductRouter = require('./routes/productRoutes');
+const AdminRouter = require('./routes/adminRoutes');
 const cors = require('cors');
 const userAuth = require('./middleware/authMiddleware');
 
@@ -12,6 +14,8 @@ app.use(cors({
 }))
 app.use(express.json());
 app.use('/user' , UserRouter);
+app.use('/product', ProductRouter);
+app.use('/admin', AdminRouter);
 
 // route or endpoint
 app.get('/', (req, res) => {
