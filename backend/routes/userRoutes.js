@@ -115,8 +115,55 @@ router.post('/authenticate', (req, res) => {
          }
     }).catch((err) => {
         console.log(err);
-        req.status(500).json(err);  
+        res.status(500).json(err);  
     });
+});
+
+// forgot-password - verify email exists and return reset token
+router.post('/forgot-password', (req, res) => {
+    const { email } = req.body;
+    Model.findOne({ email })
+        .then((user) => {
+            if (!user) {
+                return res.status(404).json({ message: 'No account found with this email' });
+            }
+            // Generate a short-lived reset token (15 min)
+            const resetToken = jwt.sign(
+                { _id: user._id, email: user.email, purpose: 'password-reset' },
+                process.env.JWT_SECRET,
+                { expiresIn: '15m' }
+            );
+            res.status(200).json({ resetToken, message: 'Email verified. You can reset your password.' });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json({ message: 'Server error' });
+        });
+});
+
+// reset-password - verify token and update password
+router.post('/reset-password', (req, res) => {
+    const { resetToken, newPassword } = req.body;
+    try {
+        const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+        if (decoded.purpose !== 'password-reset') {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+        Model.findByIdAndUpdate(decoded._id, { password: newPassword }, { new: true })
+            .then((result) => {
+                if (!result) {
+                    return res.status(404).json({ message: 'User not found' });
+                }
+                res.status(200).json({ message: 'Password updated successfully' });
+            })
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json({ message: 'Error updating password' });
+            });
+    } catch (err) {
+        console.log(err);
+        res.status(403).json({ message: 'Invalid or expired reset token' });
+    }
 });
 
 

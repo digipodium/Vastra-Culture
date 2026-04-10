@@ -87,8 +87,11 @@ const Login = () => {
 
                                 {/* Form Group */}
                                 <div>
-                                    <div className="flex flex-wrap items-center gap-2">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
                                         <label htmlFor="password" className="block text-sm mb-2 text-gray-800">Password</label>
+                                        <a href="/forgot-password" className="inline-flex items-center gap-x-1 text-sm text-blue-600 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium">
+                                            Forgot password?
+                                        </a>
                                     </div>
                                     <div className="relative">
                                         <input type="password"

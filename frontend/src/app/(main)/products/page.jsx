@@ -113,10 +113,15 @@ const ProductSection = () => {
                       <p className="text-sm font-bold text-gray-900">
                         ₹{product.adminPrice || product.price}
                       </p>
-                      {product.discount > 0 && (
-                        <p className="text-xs text-gray-400 line-through">
-                          ₹{product.price}
-                        </p>
+                      {product.discount > 0 && product.adminPrice && (
+                        <>
+                          <p className="text-xs text-gray-400 line-through">
+                            ₹{Math.round(product.adminPrice + (product.adminPrice * product.discount) / 100)}
+                          </p>
+                          <p className="text-xs text-green-600 font-semibold">
+                            ({product.discount}% off)
+                          </p>
+                        </>
                       )}
                     </div>
                   </div>
