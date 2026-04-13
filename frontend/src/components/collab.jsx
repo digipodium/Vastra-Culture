@@ -4,7 +4,7 @@ import React from 'react'
 const Collab = () => {
   return (
     <div>
-        <section className="bg-white py-12 md:py-20 border-y border-gray-100">
+        <section className="bg-white py-10 md:py-10 border-y border-gray-100">
   <div className="max-w-7xl mx-auto px-6 lg:px-8">
     {/* Section Header */}
     <div className="text-center mb-10 md:mb-16">
