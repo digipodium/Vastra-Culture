@@ -1,104 +1,109 @@
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const Model = require('../models/Ordermodel');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const Order = require('../models/Order');
+const userAuth = require('../middleware/authMiddleware');
 
-// create order
-router.post('/add', (req, res) => {
-    new Model(req.body).save()
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Create order
+router.post('/create', userAuth, async (req, res) => {
+    try {
+        const { products, totalPrice, shippingAddress, paymentMethod } = req.body;
+
+        if (!products || !totalPrice || !shippingAddress) {
+            return res.status(400).json({ message: 'All fields required' });
+        }
+
+        const order = new Order({
+            user: req.user.id,
+            products,
+            totalPrice,
+            shippingAddress,
+            paymentMethod: paymentMethod || 'cod',
+        });
+
+        await order.save();
+        await order.populate('products.product user');
+
+        res.status(201).json({ message: 'Order created successfully', order });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// get all (admin)
-router.get('/getall', (req, res) => {
-    Model.find()
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Get all orders (admin only)
+router.get('/all', userAuth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        const orders = await Order.find()
+            .populate('user', 'name email')
+            .populate('products.product')
+            .sort({ createdAt: -1 });
+
+        res.json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// get by user
-router.get('/getbyuser/:userId', (req, res) => {
-    Model.find({ userId: req.params.userId })
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Get user orders
+router.get('/user/my-orders', userAuth, async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.user.id })
+            .populate('products.product')
+            .sort({ createdAt: -1 });
+
+        res.json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// get by supplier
-router.get('/getbysupplier/:supplierId', (req, res) => {
-    Model.find({ supplierId: req.params.supplierId })
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Get order by ID
+router.get('/:id', userAuth, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('user', 'name email')
+            .populate('products.product');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        if (order.user._id.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// get by id
-router.get('/getbyid/:id', (req, res) => {
-    Model.findById(req.params.id)
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Update order status (admin only)
+router.put('/update/:id', userAuth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        const { status, paymentStatus } = req.body;
+        const order = await Order.findByIdAndUpdate(
+            req.params.id,
+            { status, paymentStatus },
+            { new: true }
+        ).populate('user').populate('products.product');
+
+        res.json({ message: 'Order updated', order });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
-
-
-// update status
-router.put('/update-status/:id', (req, res) => {
-    Model.findByIdAndUpdate(
-        req.params.id,
-        { status: req.body.status },
-        { new: true }
-    )
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
-});
-
-// cancel order
-router.put('/cancel/:id', (req, res) => {
-    Model.findByIdAndUpdate(
-        req.params.id,
-        { status: 'cancelled' },
-        { new: true }
-    )
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
-});
-
-// delete
-router.delete('/delete/:id', (req, res) => {
-    Model.findByIdAndDelete(req.params.id)
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
-});
-
-router.post('/authenticate', (req, res) => {
-    const { email, password } = req.body;
-    Model.findOne({ email, password})
-    .then((result) => {
-         if(result){
-            const { _id, email } = result;
-
-            jwt.sign(
-                { _id, email },
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' },
-                 (err, token) =>{ 
-                     if(err){
-                        console.log(err);
-                        res.status(500).json({ message: 'error creating token' })    
-                     } else {
-                        res.status(201).json({ token });
-                     }
-                  }
-            )
-
-         } else{
-            res.status(403).json({ message: 'credentials Invalid'});
-         }
-    }).catch((err) => {
-        console.log(err);
-        req.status(500).json(err);  
-    });
-});
-
-
 
 module.exports = router;

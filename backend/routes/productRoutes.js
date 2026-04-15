@@ -1,119 +1,107 @@
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const Model = require('../models/Product');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const Product = require('../models/Product');
+const userAuth = require('../middleware/authMiddleware');
 
+// Create product (supplier only)
+router.post('/create', userAuth, async (req, res) => {
+    try {
+        if (req.user.role !== 'supplier' && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Only suppliers can add products' });
+        }
 
-// add product
-router.post('/add', (req, res) => {
-    new Model(req.body).save()
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+        const { name, description, price, category, image, stock } = req.body;
+
+        if (!name || !description || !price || !category) {
+            return res.status(400).json({ message: 'All fields required' });
+        }
+
+        const product = new Product({
+            name,
+            description,
+            price,
+            category,
+            image,
+            stock,
+            supplier: req.user.id,
+            status: 'pending',
+        });
+
+        await product.save();
+        res.status(201).json({ message: 'Product created successfully', product });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-/// getall
-router.get('/getall', (req, res) => {
-    Model.find()
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Get all approved products
+router.get('/all', async (req, res) => {
+    try {
+        const products = await Product.find({ status: 'approved' })
+            .populate('supplier', 'name email')
+            .populate('reviews');
+        res.json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// get published products (for public website)
-router.get('/getpublished', (req, res) => {
-    Model.find({ status: 'approved', isPublished: true })
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Get product by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id)
+            .populate('supplier', 'name email')
+            .populate('reviews');
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        res.json(product);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// get by category
-router.get('/getbycategory/:category', (req, res) => {
-    Model.find({ category: req.params.category })
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Update product (supplier only)
+router.put('/update/:id', userAuth, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        if (product.supplier.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json({ message: 'Product updated', product: updated });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// get by supplier
-router.get('/getbysupplier/:supplierId', (req, res) => {
-    Model.find({ supplierId: req.params.supplierId })
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
+// Delete product (supplier only)
+router.delete('/delete/:id', userAuth, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        if (product.supplier.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        await Product.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Product deleted' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
-
-// search
-router.get('/search/:keyword', (req, res) => {
-    Model.find({
-        name: { $regex: req.params.keyword, $options: 'i' }
-    })
-    .then(result => res.status(200).json(result))
-    .catch(err => res.status(500).json(err));
-});
-
-// getbyid
-router.get('/getbyid/:id', (req, res) => {
-    Model.findById(req.params.id)
-    .then((result) => {
-        res.status(200).json(result);
-    }).catch((err) => {
-        console.log(err);
-        res.status(500).json(err);
-    });
-});
-
-
-// delete
-router.delete('/delete/:id', (req, res) => {
-    Model.findByIdAndDelete(req.params.id)
-    .then((result) => {
-        res.status(200).json(result);
-    }).catch((err) => {
-        console.log(err);
-        res.status(500).json(err);
-    });
-});
-
-// update
-
-router.put('/update/:id', (req, res) => {
-    Model.findByIdAndUpdate(req.params.id , req.body )
-    .then((result) => {
-        res.status(200).json(result);
-    }).catch((err) => {
-        console.log(err);
-        res.status(500).json(err);
-    });
-});
-
-router.post('/authenticate', (req, res) => {
-    const { email, password } = req.body;
-    Model.findOne({ email, password})
-    .then((result) => {
-         if(result){
-            const { _id, email } = result;
-
-            jwt.sign(
-                { _id, email },
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' },
-                 (err, token) =>{ 
-                     if(err){
-                        console.log(err);
-                        res.status(500).json({ message: 'error creating token' })    
-                     } else {
-                        res.status(201).json({ token });
-                     }
-                  }
-            )
-
-         } else{
-            res.status(403).json({ message: 'credentials Invalid'});
-         }
-    }).catch((err) => {
-        console.log(err);
-        req.status(500).json(err);  
-    });
-});
-
-
 
 module.exports = router;
