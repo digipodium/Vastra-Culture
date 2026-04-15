@@ -16,6 +16,8 @@ const ProductSection = () => {
 
   useEffect(() => {
     const fetchPublished = async () => {
+     console.log("Current API URL Variable:", process.env.NEXT_PUBLIC_API_URL);
+      
       try {
         const res = await axios.get(`${API_URL}/product/getpublished`);
         setProducts(res.data);
