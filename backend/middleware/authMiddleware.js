@@ -1,21 +1,31 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const jwt = require("jsonwebtoken");
 
-const userAuth = (req, res, next) => {
+const JWT_SECRET = process.env.JWT_SECRET || "dropshipping_super_secret_key";
+
+const authMiddleware = (req, res, next) => {
+    const token = req.header("Authorization");
+    if (!token) return res.status(401).json({ message: "Access Denied, No Token Provided" });
+
     try {
-        const token = req.headers.authorization?.split(' ')[1];
+        let cleanToken = token.replace("Bearer", "").trim();
+        // Remove any accidentally stored double or single quotes
+        cleanToken = cleanToken.replace(/^["']|["']$/g, '');
         
-        if (!token) {
-            return res.status(401).json({ message: 'No token provided' });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(cleanToken, JWT_SECRET);
         req.user = decoded;
         next();
     } catch (error) {
-        console.error('Auth error:', error.message);
-        res.status(401).json({ message: 'Invalid or expired token' });
+        res.status(400).json({ message: "Invalid Token" });
     }
 };
 
-module.exports = userAuth;
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ message: `Role (${req.user.role}) is not allowed to access this resource` });
+        }
+        next();
+    };
+};
+
+module.exports = { authMiddleware, authorizeRoles };

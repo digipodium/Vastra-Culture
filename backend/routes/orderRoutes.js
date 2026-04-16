@@ -1,109 +1,161 @@
-const express = require('express');
+const express = require("express");
+const Order = require("../models/Order");
+const Product = require("../models/Product");
+const { authMiddleware, authorizeRoles } = require("../middleware/authMiddleware");
+
 const router = express.Router();
-const Order = require('../models/Order');
-const userAuth = require('../middleware/authMiddleware');
 
-// Create order
-router.post('/create', userAuth, async (req, res) => {
+// @desc    Create new order (Module 6 & Module 7 & Module 5 Inventory deduction)
+router.post("/", authMiddleware, async (req, res) => {
     try {
-        const { products, totalPrice, shippingAddress, paymentMethod } = req.body;
+        const { orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice, isFastDelivery } = req.body;
 
-        if (!products || !totalPrice || !shippingAddress) {
-            return res.status(400).json({ message: 'All fields required' });
+        if (orderItems && orderItems.length === 0) {
+            return res.status(400).json({ message: "No order items" });
+        } else {
+            // Check inventory (Module 5)
+            for (let item of orderItems) {
+                const product = await Product.findById(item.product);
+                if (!product) return res.status(400).json({ message: `Product ${item.name} no longer exists in inventory.` });
+                if (product.stock < item.qty) {
+                    return res.status(400).json({ message: `Insufficient stock for ${product.title}` });
+                }
+            }
+
+            const order = new Order({
+                orderItems,
+                user: req.user.id,
+                shippingAddress,
+                paymentMethod,
+                itemsPrice,
+                taxPrice,
+                shippingPrice,
+                totalPrice,
+                isFastDelivery,
+                status: "Forwarded" // Module 7: Automatically forwarded
+            });
+
+            const createdOrder = await order.save();
+
+            // Module 5: Deduct stock after order creation
+            for (let item of orderItems) {
+                const product = await Product.findById(item.product);
+                if (product) {
+                    product.stock -= item.qty;
+                    await product.save();
+                }
+            }
+
+            res.status(201).json(createdOrder);
         }
-
-        const order = new Order({
-            user: req.user.id,
-            products,
-            totalPrice,
-            shippingAddress,
-            paymentMethod: paymentMethod || 'cod',
-        });
-
-        await order.save();
-        await order.populate('products.product user');
-
-        res.status(201).json({ message: 'Order created successfully', order });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 });
 
-// Get all orders (admin only)
-router.get('/all', userAuth, async (req, res) => {
+// @desc    Get logged in user orders
+router.get("/myorders", authMiddleware, async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-
-        const orders = await Order.find()
-            .populate('user', 'name email')
-            .populate('products.product')
-            .sort({ createdAt: -1 });
-
-        res.json(orders);
+        const orders = await Order.find({ user: req.user.id || req.user._id }).sort({ createdAt: -1 });
+        res.status(200).json(orders);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("Dashboard Orders Fetch Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 });
 
-// Get user orders
-router.get('/user/my-orders', userAuth, async (req, res) => {
+// @desc    Get order by ID
+router.get("/:id", authMiddleware, async (req, res) => {
     try {
-        const orders = await Order.find({ user: req.user.id })
-            .populate('products.product')
-            .sort({ createdAt: -1 });
-
-        res.json(orders);
+        const order = await Order.findById(req.params.id).populate("user", "name email");
+        if (order) res.json(order);
+        else res.status(404).json({ message: "Order not found" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 });
 
-// Get order by ID
-router.get('/:id', userAuth, async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id)
-            .populate('user', 'name email')
-            .populate('products.product');
-
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
+// @desc    Update order status (including Delivery)
+router.put("/:id/status", authMiddleware, authorizeRoles("admin", "supplier", "seller"), async (req, res) => {
+    const order = await Order.findById(req.params.id);
+    if (order) {
+        order.status = req.body.status;
+        if (req.body.status === "Delivered") {
+            order.isDelivered = true;
+            order.deliveredAt = Date.now();
         }
-
-        if (order.user._id.toString() !== req.user.id && req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-
-        res.json(order);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } else {
+        res.status(404).json({ message: "Order not found" });
     }
 });
 
-// Update order status (admin only)
-router.put('/update/:id', userAuth, async (req, res) => {
+// @desc    Update Order Address (Module 9 - Expanded rules)
+router.put("/:id/address", authMiddleware, async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied' });
+        const order = await Order.findById(req.params.id);
+        if (order) {
+            if (order.status === "Delivered" || order.status === "Cancelled") {
+                return res.status(400).json({ message: "Cannot change address for delivered or cancelled orders" });
+            }
+            order.shippingAddress = req.body.shippingAddress;
+            const updatedOrder = await order.save();
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: "Order not found" });
         }
-
-        const { status, paymentStatus } = req.body;
-        const order = await Order.findByIdAndUpdate(
-            req.params.id,
-            { status, paymentStatus },
-            { new: true }
-        ).populate('user').populate('products.product');
-
-        res.json({ message: 'Order updated', order });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
+});
+
+// @desc    Request Return (Module 11)
+router.post("/:id/return", authMiddleware, async (req, res) => {
+    const order = await Order.findById(req.params.id);
+    if (order && order.isDelivered) {
+        order.returnRequest = {
+            isRequested: true,
+            reason: req.body.reason,
+            status: "Pending"
+        };
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } else {
+        res.status(400).json({ message: "Cannot request return at this stage" });
+    }
+});
+
+
+
+// @desc    Approve or Reject a Return Request (Module 11 - Supplier/Admin)
+router.put("/:id/return-status", authMiddleware, authorizeRoles("admin", "supplier", "seller"), async (req, res) => {
+    try {
+        const { status } = req.body; // "Approved" or "Rejected"
+        if (!["Approved", "Rejected", "Refunded"].includes(status)) {
+            return res.status(400).json({ message: "Invalid return status" });
+        }
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: "Order not found" });
+        if (!order.returnRequest?.isRequested) {
+            return res.status(400).json({ message: "No return request found for this order" });
+        }
+        order.returnRequest.status = status;
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+});
+
+// @desc    Get all orders (Admin/Supplier module view)
+router.get("/", authMiddleware, authorizeRoles("admin", "supplier", "seller"), async (req, res) => {
+    let filter = {};
+    if (req.user.role === "supplier" || req.user.role === "seller") {
+        filter = { "orderItems.supplier": req.user.id };
+    }
+    const orders = await Order.find(filter).populate("user", "id name");
+    res.json(orders);
 });
 
 module.exports = router;

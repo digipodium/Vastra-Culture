@@ -1,86 +1,59 @@
-const express = require('express');
+const express = require("express");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
+const { authMiddleware } = require("../middleware/authMiddleware");
+
 const router = express.Router();
-const userAuth = require('../middleware/authMiddleware');
-require('dotenv').config();
 
-// Import Razorpay (will work if razorpay package is installed)
-let razorpay;
-try {
-    const Razorpay = require('razorpay');
-    razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET
-    });
-} catch (err) {
-    console.log('Razorpay not configured:', err.message);
-}
+// Initialize Razorpay 
+// Note: In production these keys must come from process.env
+// We'll use dummy test keys for illustration that you can replace
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_dummykey12345",
+    key_secret: process.env.RAZORPAY_SECRET || "dummy_secret_key_67890",
+});
 
-// Create order
-router.post('/create-order', userAuth, async (req, res) => {
+// @desc Create Razorpay Order
+router.post("/create-order", authMiddleware, async (req, res) => {
     try {
-        if (!razorpay) {
-            return res.status(503).json({ message: 'Payment service not available' });
-        }
-
         const { amount } = req.body;
-
-        if (!amount || amount <= 0) {
-            return res.status(400).json({ message: 'Invalid amount' });
-        }
-
+        
         const options = {
-            amount: Math.round(amount * 100), // Convert to paisa
+            amount: Math.round(amount * 100), // Razorpay amount is in paise (lowest denomination)
             currency: "INR",
-            receipt: `receipt_${Date.now()}`,
-            notes: {
-                userId: req.user._id,
-                email: req.user.email
-            }
+            receipt: `receipt_order_${Date.now()}`,
         };
 
         const order = await razorpay.orders.create(options);
-        res.status(200).json(order);
+        
+        if (!order) {
+            return res.status(500).json({ message: "Some error occured creating Razorpay order" });
+        }
+        res.json(order);
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Failed to create order', error: error.message });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 });
 
-// Verify payment
-router.post('/verify', userAuth, async (req, res) => {
+// @desc Verify Razorpay Payment Details
+router.post("/verify", authMiddleware, async (req, res) => {
     try {
-        if (!razorpay) {
-            return res.status(503).json({ message: 'Payment service not available' });
-        }
-
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
-        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-            return res.status(400).json({ message: 'Missing payment details' });
-        }
-
-        const crypto = require('crypto');
-        const body = razorpay_order_id + "|" + razorpay_payment_id;
-
-        const expectedSignature = crypto
-            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-            .update(body.toString())
+        
+        // Verifying the signature
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_SECRET || "dummy_secret_key_67890")
+            .update(sign.toString())
             .digest("hex");
 
-        if (expectedSignature === razorpay_signature) {
-            res.status(200).json({ 
-                message: "Payment verified successfully",
-                verified: true 
-            });
+        if (razorpay_signature === expectedSign) {
+            return res.status(200).json({ message: "Payment verified successfully" });
         } else {
-            res.status(400).json({ 
-                message: "Invalid signature",
-                verified: false 
-            });
+            return res.status(400).json({ message: "Invalid signature sent!" });
         }
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Verification failed', error: error.message });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 });
 

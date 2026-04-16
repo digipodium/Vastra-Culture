@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Trash2, Plus, Minus, ShieldCheck, Truck, ShoppingBag } from 'lucide-react';
 
 const CartPage = () => {
-  // Mock data for the cart
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -25,128 +24,150 @@ const CartPage = () => {
     }
   ]);
 
+  // --- Logic for quantity change ---
+  const updateQty = (id, delta) => {
+    setCartItems(prev => prev.map(item => 
+      item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
+    ));
+  };
+
+  const removeItem = (id) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
+  };
+
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
-  const shipping = subtotal > 2000 ? 0 : 150;
+  const shipping = subtotal > 2000 || cartItems.length === 0 ? 0 : 150;
   const total = subtotal + shipping;
 
   return (
-    <div className="bg-white min-h-screen font-sans text-gray-900 selection:bg-indigo-50">
-      <div className="max-w-7xl mx-auto px-6 py-16">
+    <div className="bg-white min-h-screen font-sans text-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-16">
         
         {/* Header Section */}
-        <div className="flex items-baseline justify-between border-b border-gray-100 pb-8 mb-12">
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold tracking-tighter uppercase">Shopping Bag</h1>
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-gray-100 pb-6 mb-8 md:mb-12 gap-4">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tighter uppercase">Bag</h1>
             <span className="text-gray-400 font-medium">({cartItems.length} Items)</span>
           </div>
-          <button className="text-xs font-bold uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors">
-           <a href="/products"> Continue Shopping</a>
-          </button>
+          <a href="/products" className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors">
+            Continue Shopping
+          </a>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr_400px] gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 md:gap-16">
           
           {/* LEFT: Cart Items List */}
-          <div className="space-y-10">
+          <div className="space-y-8">
             {cartItems.map((item) => (
-              <div key={item.id} className="flex gap-6 pb-10 border-b border-gray-50 group">
+              <div key={item.id} className="flex gap-4 md:gap-6 pb-8 border-b border-gray-50 group">
                 {/* Item Image */}
-                <div className="w-32 h-40 bg-gray-50 rounded-xl overflow-hidden shrink-0">
+                <div className="w-24 h-32 md:w-32 md:h-40 bg-gray-50 rounded-xl overflow-hidden shrink-0">
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                 </div>
 
                 {/* Item Details */}
                 <div className="flex flex-col justify-between w-full py-1">
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-2">
                     <div>
-                      <h3 className="text-sm font-bold uppercase tracking-tight mb-1">{item.name}</h3>
-                      <p className="text-xs text-gray-400 mb-4">{item.color} • Size {item.size}</p>
+                      <h3 className="text-xs md:text-sm font-bold uppercase tracking-tight mb-1">{item.name}</h3>
+                      <p className="text-[10px] md:text-xs text-gray-400">{item.color} • Size {item.size}</p>
                     </div>
-                    <p className="font-bold">₹{item.price.toLocaleString()}</p>
+                    <p className="font-bold text-sm md:text-base">₹{(item.price * item.qty).toLocaleString()}</p>
                   </div>
 
-                  <div className="flex justify-between items-end">
+                  <div className="flex justify-between items-end mt-4">
                     {/* Quantity Controller */}
-                    <div className="flex items-center border border-gray-200 rounded-lg px-2 py-1">
-                      <button className="p-1 hover:text-indigo-600 transition-colors"><Minus size={14} /></button>
-                      <span className="px-4 text-xs font-bold">{item.qty}</span>
-                      <button className="p-1 hover:text-indigo-600 transition-colors"><Plus size={14} /></button>
+                    <div className="flex items-center border border-gray-200 rounded-lg px-1 py-0.5 md:px-2 md:py-1">
+                      <button 
+                        onClick={() => updateQty(item.id, -1)}
+                        className="p-1 hover:text-indigo-600 transition-colors"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="px-3 md:px-4 text-[10px] md:text-xs font-bold">{item.qty}</span>
+                      <button 
+                        onClick={() => updateQty(item.id, 1)}
+                        className="p-1 hover:text-indigo-600 transition-colors"
+                      >
+                        <Plus size={12} />
+                      </button>
                     </div>
                     
-                    <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-red-500 transition-colors">
-                      <Trash2 size={14} />
-                      Remove
+                    <button 
+                      onClick={() => removeItem(item.id)}
+                      className="flex items-center gap-1.5 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={12} />
+                      <span className="hidden xs:block">Remove</span>
                     </button>
                   </div>
                 </div>
               </div>
             ))}
 
-            {/* Empty State Logic can go here */}
             {cartItems.length === 0 && (
               <div className="py-20 text-center flex flex-col items-center">
                 <ShoppingBag size={48} className="text-gray-100 mb-4" />
-                <p className="text-gray-400 italic">Your bag is currently empty.</p>
+                <p className="text-gray-400 italic text-sm">Your bag is currently empty.</p>
+                <a href="/products" className="mt-6 px-6 py-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full">Explore Shop</a>
               </div>
             )}
           </div>
 
-          {/* RIGHT: Order Summary (Sticky) */}
-          <aside className="relative">
-            <div className="sticky top-12 bg-gray-50 rounded-[2rem] p-8">
-              <h2 className="text-lg font-bold mb-8 uppercase tracking-tight">Order Summary</h2>
+          {/* RIGHT: Order Summary */}
+          <aside>
+            <div className="lg:sticky lg:top-8 bg-gray-50 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8">
+              <h2 className="text-base md:text-lg font-bold mb-6 uppercase tracking-tight">Summary</h2>
               
               <div className="space-y-4 mb-8">
-                <div className="flex justify-between text-sm text-gray-500">
+                <div className="flex justify-between text-xs md:text-sm text-gray-500">
                   <span>Subtotal</span>
                   <span className="text-gray-900 font-medium">₹{subtotal.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>Estimated Shipping</span>
+                <div className="flex justify-between text-xs md:text-sm text-gray-500">
+                  <span>Shipping</span>
                   <span className="text-gray-900 font-medium">
-                    {shipping === 0 ? <span className="text-green-600">Free</span> : `₹${shipping}`}
+                    {shipping === 0 ? <span className="text-green-600 uppercase text-[10px] font-bold">Free</span> : `₹${shipping}`}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-500 pb-4">
-                  <span>Tax</span>
-                  <span className="text-gray-900 font-medium">Calculated at checkout</span>
-                </div>
                 <div className="border-t border-gray-200 pt-4 flex justify-between">
-                  <span className="font-bold">Total</span>
-                  <span className="text-xl font-bold">₹{total.toLocaleString()}</span>
+                  <span className="font-bold text-sm md:text-base">Total</span>
+                  <span className="text-lg md:text-xl font-bold">₹{total.toLocaleString()}</span>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button className="w-full bg-gray-900 text-white py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200 active:scale-[0.98]">
+                <button 
+                  disabled={cartItems.length === 0}
+                  className="w-full bg-gray-900 text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200 active:scale-[0.98] disabled:bg-gray-300 disabled:shadow-none"
+                >
                   Checkout Now
                 </button>
                 <div className="flex items-center justify-center gap-2 pt-4 opacity-40">
-                  <ShieldCheck size={14} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Secure SSL Encryption</span>
+                  <ShieldCheck size={12} />
+                  <span className="text-[9px] font-bold uppercase tracking-widest">Secure Checkout</span>
                 </div>
               </div>
 
-              {/* Promo Code Toggle */}
-              <div className="mt-10 pt-8 border-t border-gray-200">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-3">Promotional Code</label>
+              {/* Promo Code */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
                 <div className="flex gap-2">
                   <input 
                     type="text" 
-                    placeholder="Enter Code"
-                    className="bg-white border border-transparent focus:border-gray-200 rounded-xl px-4 py-3 text-xs w-full outline-none transition-all"
+                    placeholder="PROMO CODE"
+                    className="bg-white border border-transparent focus:border-gray-200 rounded-lg px-4 py-3 text-[10px] w-full outline-none"
                   />
-                  <button className="bg-white border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold hover:bg-gray-100 transition-all uppercase tracking-tight">Apply</button>
+                  <button className="bg-white border border-gray-200 px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-gray-100 transition-all uppercase">Apply</button>
                 </div>
               </div>
             </div>
 
-            {/* Delivery Trust Badge */}
-            <div className="mt-8 px-8 flex items-start gap-4 text-gray-400">
-              <Truck size={18} />
-              <p className="text-[10px] leading-relaxed uppercase tracking-wide">
-                Free shipping on orders over ₹2,000. Delivered by <span className="text-gray-900 font-bold">Vastra Logistics</span>.
+            {/* Delivery Info */}
+            <div className="mt-6 px-4 flex items-start gap-3 text-gray-400">
+              <Truck size={16} className="shrink-0" />
+              <p className="text-[9px] leading-relaxed uppercase tracking-wide">
+                Orders above ₹2,000 qualify for <span className="text-gray-900 font-bold">Free Shipping</span>.
               </p>
             </div>
           </aside>
